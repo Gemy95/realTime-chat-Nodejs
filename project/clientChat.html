@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html>
+<head>
+	
+	<title>real time chat</title>
+
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+  <link rel='stylesheet' href='https://use.fontawesome.com/releases/v5.7.0/css/all.css' integrity='sha384-lZN37f5QGtY3VHgisS14W3ExzMWZxybE1SJSEsQp9S+oqd12jhcu+A56Ebc1zFSJ' crossorigin='anonymous'>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.0/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js"></script>
+  <script src="node_modules/socket.io-client/dist/socket.io.js"></script>
+
+  
+  <style>
+
+#divMessage{
+  border-style: outset;
+  height: 400px;
+  padding: 10px;
+  font-size: 20px;  
+}
+
+
+.divCenter
+{
+   margin: 0 auto;
+}
+
+.customRightDiv
+{
+  width: 100%;
+  display: flex;
+  flex-direction: row-reverse;
+  word-wrap:break-word;
+}
+
+.customLeftDiv
+{
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  word-wrap:break-word;
+}
+
+.customLeftDiv span {
+  background-color:#DCDCDC;
+  color:black;
+  border-radius: 5px;
+  width: 48%;
+  padding: 5px;
+  } 
+
+.customRightDiv span {
+  background-color:#007BFF;
+  color: white;
+  border-radius: 5px;
+  width: 48%;
+  padding: 5px;
+  }
+
+.customSpan
+{
+  margin-top: 10px;
+}
+
+  </style>
+</head>
+<body>
+
+<div class="container-fluid">
+  <div class="row">
+    <div class="divCenter" style="padding-top: 10px;"><b>Chat By Eng Ali Gamal el 30mda</b></div>
+  </div>
+  <div class="row">
+    <div class="divCenter" ><i style="font-size: 20px;">select user ???</i></div>
+  </div>
+  <div class="row">
+    <div class="divCenter" style="padding: 5px">
+    <button id="user1" class="btn btn-primary" onclick="user1Fun()">userName1</button> &nbsp;
+    <button id="user2" class="btn btn-primary" onclick="user2Fun()">userName2</button>
+    </div>
+  </div>
+  <div class="row">
+    <div id="divMessage" class="col-sm-6 overflow-auto divCenter">
+ 
+    </div>
+  </div>
+  <div class="row" >
+    <form class="col-sm-12 divCenter" onsubmit="sendMessage();return false;" style="text-align: center">
+    <input type="text" id="message" name="text1" class="form-control col-sm-6 mt-2 p-5" 
+    style="margin: 0 auto" placeholder="enter your message" required/> 
+    <input id="submitBtn" type="submit" value="send" class="btn btn-primary col-sm-1 col-3 mt-2"/>    
+    </form>
+  </div>
+   <br>
+</div>
+
+<script>
+
+document.getElementById("submitBtn").disabled=true;
+
+var socket = io.connect('http://localhost:5000');
+
+function sendMessage()
+{
+    var message=document.getElementById("message").value;
+    var user1=document.getElementById("user1").innerHTML;
+    var user2=document.getElementById("user2").innerHTML;
+
+    if(document.getElementById("user1").disabled==true)
+    {
+      socket.emit("clientMessage",{from:user1,to:user2,msg:message});
+    }
+
+    if(document.getElementById("user2").disabled==true)
+    {
+      socket.emit("clientMessage",{from:user2,to:user1,msg:message});
+    }
+    
+}
+
+socket.on("showAllMessages",function(array){
+  
+  document.getElementById("message").value="";
+
+
+  for (let i=0 ; i<array.length;i++)
+  {
+   if(array[i].fromUserName=="userName1")
+   {  
+    var mySpan1=document.createElement("span");
+    var MessageOfUser1=document.createTextNode(array[i].stringMessage);
+    mySpan1.appendChild(MessageOfUser1); 
+    var customDiv1=document.createElement("div");
+    customDiv1.setAttribute("class","customLeftDiv");
+    customDiv1.appendChild(mySpan1);
+    document.getElementById("divMessage").appendChild(customDiv1);
+    var date1=new Date(array[i].date);
+    mySpan1.setAttribute("title",date1.toLocaleString());
+    mySpan1.setAttribute("class","customSpan");
+   }
+
+   if(array[i].fromUserName=="userName2")
+   {  
+    var mySpan2=document.createElement("span");
+    var MessageOfUser2=document.createTextNode(array[i].stringMessage);
+    mySpan2.appendChild(MessageOfUser2); 
+    var customDiv2=document.createElement("div");
+    customDiv2.setAttribute("class","customRightDiv");
+    customDiv2.appendChild(mySpan2);
+    document.getElementById("divMessage").appendChild(customDiv2);
+    var date2=new Date(array[i].date);
+    mySpan2.setAttribute("title",date2.toLocaleString());
+    mySpan2.setAttribute("class","customSpan");
+   }
+
+  }
+
+});
+
+function user1Fun()
+{
+document.getElementById("user1").disabled=true;
+document.getElementById("user2").disabled=false;
+document.getElementById("submitBtn").disabled=false;
+}
+
+
+function user2Fun()
+{
+document.getElementById("user1").disabled=false;
+document.getElementById("user2").disabled=true;
+document.getElementById("submitBtn").disabled=false;
+}
+
+</script>
+</body>
+</html>

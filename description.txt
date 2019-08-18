@@ -1,0 +1,4 @@
+first  : create database 
+second :install all packages in nodejs using
+>>>>>>>>>>>>>>>>>>>>>>>>
+npm install

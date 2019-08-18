@@ -1,0 +1,4 @@
+
+create database called : chatDB
+
+and then create collection called :chatInfo
